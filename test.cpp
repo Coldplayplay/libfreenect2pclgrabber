@@ -24,10 +24,12 @@ via Luigi Alamanni 13D, San Giuliano Terme 56010 (PI), Italy
 #include <pcl/console/parse.h>
 #include <pcl/console/time.h>
 #include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
+#include <iostream>
 #ifdef WITH_SERIALIZATION
 #include "serialization.h"
 #endif
-
+int count = 0;
 struct PlySaver{
 
   PlySaver(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloud, bool binary, bool use_camera, K2G & k2g): 
@@ -43,17 +45,23 @@ void KeyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void 
 {
   std::string pressed = event.getKeySym();
   PlySaver * s = (PlySaver*)data;
+  std::stringstream ss;
+  
   if(event.keyDown ())
   {
     if(pressed == "s")
     {
-      
+      count++;
+      ss<< count;
+      pcl::io::savePCDFile("cloud"+ss.str()+".pcd",*(s->cloud_));
+      std::cout<<"saved "<<" num "<<count<<" pointcloud"<<std::endl;
+/*
       pcl::PLYWriter writer;
       std::chrono::high_resolution_clock::time_point p = std::chrono::high_resolution_clock::now();
       std::string now = std::to_string((long)std::chrono::duration_cast<std::chrono::milliseconds>(p.time_since_epoch()).count());
-      writer.write ("cloud_" + now, *(s->cloud_), s->binary_, s->use_camera_);
-      
+      writer.write ("cloud_" + now, *(s->cloud_), s->binary_, s->use_camera_);      
       std::cout << "saved " << "cloud_" + now + ".ply" << std::endl;
+*/
     }
     if(pressed == "m")
     {
@@ -131,7 +139,9 @@ int main(int argc, char * argv[])
     std::chrono::high_resolution_clock::time_point tpost = std::chrono::high_resolution_clock::now();
     std::cout << "delta " << std::chrono::duration_cast<std::chrono::duration<double>>(tpost-tnow).count() * 1000 << std::endl;
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
-    viewer->updatePointCloud<pcl::PointXYZRGB> (cloud, rgb, "sample cloud");    	
+    viewer->updatePointCloud<pcl::PointXYZRGB> (cloud, rgb, "sample cloud");
+
+    //pcl::io::savePCDFile("cloud.pcd",cloud);    	
 
   }
 
