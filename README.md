@@ -1,6 +1,16 @@
-libfreenect2pclgrabber
-======================
+# libfreenect2pclgrabber
 
+## description
+modify the test.cpp.
+add the function of saving pointcloud in pcd files.
+
+
+## command
+make build
+
+make 
+
+## other information
 A grabber for the kinect2 which returns images and Point Clouds. 
 There is the support for multiple kinects and a ROS interface.
 
