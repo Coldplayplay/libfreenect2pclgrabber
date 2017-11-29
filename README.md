@@ -1,13 +1,12 @@
 # libfreenect2pclgrabber
 
 ## description
-modify the test.cpp.
-add the function of saving pointcloud in pcd files.
+fix bugs on mirroring problem.
+
+Press "s" to save pcd and jpg files contemporarily.
 
 
 ## command
-make build
-
 make 
 
 ## other information
