@@ -29,13 +29,16 @@ via Luigi Alamanni 13D, San Giuliano Terme 56010 (PI), Italy
 #ifdef WITH_SERIALIZATION
 #include "serialization.h"
 #endif
+
 int count = 0;
+
 struct PlySaver{
 
-  PlySaver(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloud, bool binary, bool use_camera, K2G & k2g): 
-           cloud_(cloud), binary_(binary), use_camera_(use_camera), k2g_(k2g){}
+  PlySaver(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloud, cv::Mat color, bool binary, bool use_camera, K2G & k2g): 
+           cloud_(cloud), color_(color), binary_(binary), use_camera_(use_camera), k2g_(k2g){}
 
   boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloud_;
+  cv::Mat color_;
   bool binary_;
   bool use_camera_;
   K2G & k2g_;
@@ -54,7 +57,10 @@ void KeyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void 
       count++;
       ss<< count;
       pcl::io::savePCDFile("cloud"+ss.str()+".pcd",*(s->cloud_));
-      std::cout<<"saved "<<" num "<<count<<" pointcloud"<<std::endl;
+      cv::imwrite("color" + ss.str() + ".jpg", s->color_);
+      std::cout<<"saved "<<" num "<<count<<" pointcloud. ";
+      std::cout<<"& saved "<<" num "<<count<<" jpg"<<std::endl;
+
 /*
       pcl::PLYWriter writer;
       std::chrono::high_resolution_clock::time_point p = std::chrono::high_resolution_clock::now();
@@ -65,7 +71,7 @@ void KeyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void 
     }
     if(pressed == "m")
     {
-      s->k2g_.mirror();
+      s->k2g_.mirror();      
     }
 #ifdef WITH_SERIALIZATION
     if(pressed == "z")
@@ -104,9 +110,12 @@ int main(int argc, char * argv[])
   }
     
   boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloud;
+  cv::Mat color, depth;
   K2G k2g(freenectprocessor);
-  std::cout << "getting cloud" << std::endl;
+
+  std::cout << "getting cloud and color" << std::endl;  
   cloud = k2g.getCloud();
+  k2g.getColor(color);
 
   k2g.printParameters();
 
@@ -121,10 +130,10 @@ int main(int argc, char * argv[])
   viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb, "sample cloud");
   viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud");
 
-  PlySaver ps(cloud, false, false, k2g);
+  PlySaver ps(cloud, color, false, false, k2g);
   viewer->registerKeyboardCallback(KeyboardEventOccurred, (void*)&ps);
 
-  cv::Mat color, depth;
+  //cv::Mat color, depth;
 
   while(!viewer->wasStopped()){
 
@@ -137,7 +146,7 @@ int main(int argc, char * argv[])
     int c = cv::waitKey(1);
     
     std::chrono::high_resolution_clock::time_point tpost = std::chrono::high_resolution_clock::now();
-    std::cout << "delta " << std::chrono::duration_cast<std::chrono::duration<double>>(tpost-tnow).count() * 1000 << std::endl;
+    //std::cout << "delta " << std::chrono::duration_cast<std::chrono::duration<double>>(tpost-tnow).count() * 1000 << std::endl;
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
     viewer->updatePointCloud<pcl::PointXYZRGB> (cloud, rgb, "sample cloud");
 
