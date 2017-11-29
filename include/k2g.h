@@ -58,7 +58,7 @@ class K2G {
 
 public:
 
-	K2G(Processor p = CPU, bool mirror = false, std::string serial = std::string()): mirror_(mirror), listener_(libfreenect2::Frame::Color | libfreenect2::Frame::Ir | libfreenect2::Frame::Depth), 
+	K2G(Processor p = CPU, bool mirror = true, std::string serial = std::string()): mirror_(mirror), listener_(libfreenect2::Frame::Color | libfreenect2::Frame::Ir | libfreenect2::Frame::Depth), 
 	                                       undistorted_(512, 424, 4), registered_(512, 424, 4), big_mat_(1920, 1082, 4), qnan_(std::numeric_limits<float>::quiet_NaN()){
 
 		signal(SIGINT,sigint_handler);
@@ -340,7 +340,7 @@ public:
 	}
 
 	void mirror(){
-		mirror_ != mirror_;
+		mirror_ = !mirror_;
 	}
 
 	libfreenect2::SyncMultiFrameListener * getListener(){
